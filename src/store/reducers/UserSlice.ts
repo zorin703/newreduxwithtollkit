@@ -3,6 +3,7 @@
 
 import {IUser} from "../../models/IUser";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {fetchUsers} from "./ActionCreators";
 
 interface UserState {
     users: IUser[];
@@ -23,24 +24,28 @@ const initialState: UserState = {
 export const userSlice = createSlice({
     name: 'user',
     initialState,
-    reducers: {
-        // increment(state, action: PayloadAction<number>) {
-        //     state.count += action.payload;
-        usersFetching(state){
-            state.isLoading = true
-        },
-        usersFetchingSuccess(state, action:PayloadAction<IUser[]>){
+    reducers: {},
+    extraReducers: {
+        [fetchUsers.fulfilled.type]: (state, action: PayloadAction<IUser[]>) => {
             state.isLoading = false
-            state.error =''
+            state.error = ''
             state.users = action.payload
         },
-        usersFetchingError(state, action: PayloadAction<string>){
-            state.isLoading = false
+        [fetchUsers.pending.type]: (state) => {
+            state.isLoading = true
+        },
+        [fetchUsers.rejected.type]: (state, action: PayloadAction<string>) => {
+            state.isLoading = false;
             state.error = action.payload
         },
-
     }
 })
+
+//Когда мы используем createAsyncThunk создается три состояния fulfilled, pending, rejected
+
+//fulfilled - успешная загрузка
+//pending - ожидание
+//rejected - произошла ошибка
 
 //Из слайса мы можем вытащить отдельно редьюсер и отдельно экшн-креэйторы
 export default userSlice.reducer;
